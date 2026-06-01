@@ -132,10 +132,13 @@
     let playing = true;
     let timer = null;
     let tick = null;
-    const DUR_NORMAL = 4500;
-    const DUR_FULL = 2200;            // pictures go faster in fullscreen
+    // The whole slideshow must run for exactly 13 minutes (slot is 15 min,
+    // 2 min of slack left for pausing). Per-photo time = 13 min / photo count,
+    // so every image's duration sums to exactly 13 minutes regardless of how
+    // many photos there are.
+    const TOTAL_MS = 13 * 60 * 1000; // 780,000 ms
     const isFull = () => document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
-    const curDur = () => (isFull() ? DUR_FULL : DUR_NORMAL);
+    const curDur = () => TOTAL_MS / order.length;
 
     function render() {
       const idx = order[pos];
