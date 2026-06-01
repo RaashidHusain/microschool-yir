@@ -165,8 +165,26 @@
     $("#storyNext").addEventListener("click", () => go(pos + 1));
     $("#storyPrev").addEventListener("click", () => go(pos - 1));
     playBtn.addEventListener("click", () => setPlaying(!playing));
-    // In fullscreen, tapping the photo advances instead of opening the lightbox.
+
+    // ----- Touch swipe (mobile): flip photos with a flick -----
+    const stage = $(".player__stage");
+    let tx = 0, ty = 0, swiped = false;
+    stage.addEventListener("touchstart", (e) => {
+      tx = e.touches[0].clientX; ty = e.touches[0].clientY; swiped = false;
+    }, { passive: true });
+    stage.addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].clientX - tx;
+      const dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+        swiped = true;
+        go(dx < 0 ? pos + 1 : pos - 1);
+      }
+    }, { passive: true });
+
+    // Tapping the photo: advance in fullscreen, else open the big lightbox.
+    // (A swipe sets the flag so it doesn't also trigger a tap.)
     img.addEventListener("click", () => {
+      if (swiped) { swiped = false; return; }
       if (isFull()) go(pos + 1);
       else openLightbox(Math.max(0, PHOTOS.indexOf(order[pos])));
     });
