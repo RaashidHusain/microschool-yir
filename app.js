@@ -79,24 +79,44 @@
   /* ---------- HERO background slideshow ---------- */
   function buildHero() {
     const wrap = $("#heroSlides");
-    const picks = shuffle(PHOTOS).slice(0, 8);
-    const slides = picks.map((idx) => {
+    // Two crossfading layers; we keep advancing through a shuffled queue of
+    // ALL photos so the same picture never comes back until every one has shown.
+    const slides = [0, 1].map(() => {
       const d = document.createElement("div");
       d.className = "slide";
-      // load progressively; first one eager
-      const img = new Image();
-      img.src = WEB(idx);
-      img.onload = () => { d.style.backgroundImage = `url("${WEB(idx)}")`; };
       wrap.appendChild(d);
       return d;
     });
+
+    let queue = shuffle(PHOTOS);
+    let qi = 0;
+    const nextIdx = () => {
+      if (qi >= queue.length) { queue = shuffle(PHOTOS); qi = 0; }
+      return queue[qi++];
+    };
+    // Crossfade to a photo only after it has loaded (no blank flash).
+    const showOn = (d, idx, cb) => {
+      const img = new Image();
+      img.src = WEB(idx);
+      img.onload = img.onerror = () => {
+        d.style.backgroundImage = `url("${WEB(idx)}")`;
+        if (cb) cb();
+      };
+    };
+
     let h = 0;
+    showOn(slides[0], nextIdx());
     slides[0].classList.add("on");
-    if (reduceMotion || slides.length < 2) return;
+    if (reduceMotion || PHOTOS.length < 2) return;
+
     setInterval(() => {
-      slides[h].classList.remove("on");
-      h = (h + 1) % slides.length;
-      slides[h].classList.add("on");
+      const off = h;
+      const inc = (h + 1) % slides.length;
+      showOn(slides[inc], nextIdx(), () => {   // next unseen photo, swap once loaded
+        slides[inc].classList.add("on");
+        slides[off].classList.remove("on");
+        h = inc;
+      });
     }, 4500);
   }
 
