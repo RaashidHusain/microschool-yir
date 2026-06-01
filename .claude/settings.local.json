@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 /Users/raashid/MicroMuhammad/make_pptx.py)",
+      "Bash(python3 -)",
+      "Bash(sips -g pixelWidth -g pixelHeight \"JPEG image-4DAC-B0DB-6D-0.JPEG\")",
+      "Bash(chmod +x /tmp/opt.sh)",
+      "Read(//private/tmp/**)",
+      "Bash(xargs -I{} -P 6 /tmp/opt.sh \"{}\")"
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imam Al-Asr Microschool · Our Happy Memories</title>
+  <meta name="description" content="A fun photo journey through our class — smiles, snacks, puzzles and lots of learning!" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>" />
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav" id="nav">
+    <a class="nav__brand" href="#top">Microschool</a>
+    <nav class="nav__links">
+      <a href="#story">Memories</a>
+      <a href="#gallery">Gallery</a>
+      <button class="nav__fun" id="surpriseBtn" type="button">Surprise me 🎉</button>
+    </nav>
+  </header>
+
+  <!-- ===== HERO (auto slideshow background) ===== -->
+  <section class="hero" id="top">
+    <div class="hero__slides" id="heroSlides" aria-hidden="true"></div>
+    <div class="hero__veil"></div>
+    <div class="hero__content">
+      <p class="hero__eyebrow">Our Class · Our Story</p>
+      <h1 class="hero__title">Microschool</h1>
+      <p class="hero__tag" id="heroTag">Where every day is an adventure ✨</p>
+      <div class="hero__btns">
+        <a class="btn btn--solid" href="#story">▶ &nbsp;Play Memories</a>
+        <a class="btn btn--ghost" href="#gallery">View Gallery</a>
+      </div>
+    </div>
+    <a class="hero__scroll" href="#story" aria-label="Scroll down">
+      <span></span>
+    </a>
+  </section>
+
+  <!-- ===== STATS BAND ===== -->
+  <section class="band">
+    <div class="band__item">
+      <span class="band__num" data-count="294">0</span>
+      <span class="band__label">Happy Memories</span>
+    </div>
+    <div class="band__item">
+      <span class="band__num">∞</span>
+      <span class="band__label">Big Smiles</span>
+    </div>
+    <div class="band__item">
+      <span class="band__num">1</span>
+      <span class="band__label">Awesome Class</span>
+    </div>
+  </section>
+
+  <!-- ===== STORY / BIG AUTO SLIDESHOW ===== -->
+  <section class="story" id="story">
+    <div class="story__head">
+      <h2>Our Story, One Photo at a Time</h2>
+      <p>Sit back and watch — the pictures play all by themselves!</p>
+      <button class="btn btn--solid story__fsbtn" id="storyFsBig" type="button">⛶ &nbsp;Watch Fullscreen</button>
+    </div>
+
+    <div class="player__wrap" id="playerWrap">
+      <div class="player">
+        <button class="player__arrow player__arrow--prev" id="storyPrev" aria-label="Previous">‹</button>
+
+        <figure class="player__stage">
+          <img id="storyImg" alt="Class memory" />
+          <figcaption class="player__caption" id="storyCaption">Loading our memories…</figcaption>
+        </figure>
+
+        <button class="player__arrow player__arrow--next" id="storyNext" aria-label="Next">›</button>
+      </div>
+
+      <div class="player__bar">
+        <button class="player__play" id="storyPlay" aria-label="Play or pause">⏸</button>
+        <div class="player__progress"><span id="storyProgress"></span></div>
+        <span class="player__count" id="storyCount">1 / 294</span>
+        <button class="player__fs" id="storyFs" aria-label="Fullscreen slideshow" title="Fullscreen">⛶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALLERY ===== -->
+  <section class="gallery" id="gallery">
+    <div class="gallery__head">
+      <h2>The Whole Gallery 📸</h2>
+      <p>Tap any photo to make it big!</p>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p class="footer__brand">Microschool</p>
+    <p class="footer__small">Made with ❤️ for our class · Every photo is a happy memory.</p>
+  </footer>
+
+  <!-- ===== LIGHTBOX ===== -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox__close" id="lbClose" aria-label="Close">✕</button>
+    <button class="lightbox__arrow lightbox__arrow--prev" id="lbPrev" aria-label="Previous">‹</button>
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" id="lbImg" alt="Class memory" />
+      <figcaption class="lightbox__caption" id="lbCaption"></figcaption>
+    </figure>
+    <button class="lightbox__arrow lightbox__arrow--next" id="lbNext" aria-label="Next">›</button>
+    <button class="lightbox__play" id="lbPlay">▶ Slideshow</button>
+  </div>
+
+  <canvas class="confetti" id="confetti"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>

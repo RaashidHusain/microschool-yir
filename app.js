@@ -1,0 +1,349 @@
+/* ===== Imam Al-Asr MicoSchool 2025-2026· fun photo journey ===== */
+(function () {
+  "use strict";
+
+  const WEB = (i) => `images/photo-${i}.jpg`;
+  const THUMB = (i) => `thumbs/photo-${i}.jpg`;
+
+  // Fun captions that rotate under the big slideshow + in the hero tagline.
+  const FUN_CAPTIONS = [
+    "Look at us go! 🚀", "Best class ever! 🌟", "Snack time is the best time 🥪",
+    "Puzzle masters at work 🧩", "Smiles all around 😄", "Learning is an adventure 📚",
+    "Friends + fun = happy days 🤝", "Say cheese! 🧀", "Big dreams, little hands ✨",
+    "Another awesome memory 💫", "Teamwork makes the dream work 🙌", "So much to discover 🔭",
+    "Giggles guaranteed 😂", "Kindness everywhere 💛", "Making today amazing 🎈",
+  ];
+  const HERO_TAGS = [
+    "Where every day is an adventure ✨",
+    "294 happy memories and counting 📸",
+    "Smiles, snacks, puzzles & friends 🧩",
+    "Our class. Our story. Our fun. 🌟",
+  ];
+
+  const $ = (s) => document.querySelector(s);
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const rand = (a) => a[Math.floor(Math.random() * a.length)];
+
+  let PHOTOS = [];          // available indices
+  let order = [];           // shuffled play order
+  let CAPTIONS = {};        // { photoIndex: "youthful caption" } from captions.json
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  /* ---------- NAV: solidify on scroll ---------- */
+  const nav = $("#nav");
+  const onScroll = () => nav.classList.toggle("is-solid", window.scrollY > window.innerHeight * 0.7);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- HERO rotating tagline ---------- */
+  const heroTag = $("#heroTag");
+  let tagI = 0;
+  if (!reduceMotion) {
+    setInterval(() => {
+      tagI = (tagI + 1) % HERO_TAGS.length;
+      heroTag.style.opacity = 0;
+      setTimeout(() => { heroTag.textContent = HERO_TAGS[tagI]; heroTag.style.opacity = 1; }, 350);
+    }, 4200);
+    heroTag.style.transition = "opacity .35s ease";
+  }
+
+  /* ---------- BOOTSTRAP: manifest + AI/OCR captions ---------- */
+  Promise.all([
+    fetch("images/manifest.json").then((r) => r.json()).catch(() => null),
+    fetch("captions.json").then((r) => r.json()).catch(() => ({})),
+  ]).then(([m, caps]) => {
+    CAPTIONS = caps || {};
+    PHOTOS = (m && m.photos) || Array.from({ length: 294 }, (_, i) => i);
+    order = shuffle(PHOTOS);
+    start();
+  });
+
+  // Caption for a photo: the AI/OCR caption if we have one, else a fun fallback.
+  const captionFor = (idx) => CAPTIONS[idx] || CAPTIONS[String(idx)] || rand(FUN_CAPTIONS);
+
+  function start() {
+    buildHero();
+    buildStory();
+    buildGallery();
+    animateCount();
+  }
+
+  /* ---------- HERO background slideshow ---------- */
+  function buildHero() {
+    const wrap = $("#heroSlides");
+    const picks = shuffle(PHOTOS).slice(0, 8);
+    const slides = picks.map((idx) => {
+      const d = document.createElement("div");
+      d.className = "slide";
+      // load progressively; first one eager
+      const img = new Image();
+      img.src = WEB(idx);
+      img.onload = () => { d.style.backgroundImage = `url("${WEB(idx)}")`; };
+      wrap.appendChild(d);
+      return d;
+    });
+    let h = 0;
+    slides[0].classList.add("on");
+    if (reduceMotion || slides.length < 2) return;
+    setInterval(() => {
+      slides[h].classList.remove("on");
+      h = (h + 1) % slides.length;
+      slides[h].classList.add("on");
+    }, 4500);
+  }
+
+  /* ---------- STORY auto player ---------- */
+  function buildStory() {
+    const img = $("#storyImg");
+    const cap = $("#storyCaption");
+    const count = $("#storyCount");
+    const prog = $("#storyProgress");
+    const playBtn = $("#storyPlay");
+    const wrap = $("#playerWrap");
+    let pos = 0;
+    let playing = true;
+    let timer = null;
+    let tick = null;
+    const DUR_NORMAL = 4500;
+    const DUR_FULL = 2200;            // pictures go faster in fullscreen
+    const isFull = () => document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
+    const curDur = () => (isFull() ? DUR_FULL : DUR_NORMAL);
+
+    function render() {
+      const idx = order[pos];
+      img.classList.add("fade");
+      const next = new Image();
+      next.src = WEB(idx);
+      next.onload = () => {
+        img.src = next.src;
+        img.classList.remove("fade");
+      };
+      cap.textContent = captionFor(idx);
+      count.textContent = `${pos + 1} / ${order.length}`;
+      // preload upcoming
+      const pre = new Image(); pre.src = WEB(order[(pos + 1) % order.length]);
+    }
+    function go(n) {
+      pos = (n + order.length) % order.length;
+      render();
+      restart();
+    }
+    function startProgress() {
+      if (reduceMotion) return;
+      const dur = curDur();
+      let t0 = performance.now();
+      cancelAnimationFrame(tick);
+      const loop = (now) => {
+        const pct = Math.min(100, ((now - t0) / dur) * 100);
+        prog.style.width = pct + "%";
+        if (playing) tick = requestAnimationFrame(loop);
+      };
+      tick = requestAnimationFrame(loop);
+    }
+    function restart() {
+      clearInterval(timer);
+      if (playing) {
+        startProgress();
+        timer = setInterval(() => go(pos + 1), curDur());
+      }
+    }
+    function setPlaying(p) {
+      playing = p;
+      playBtn.textContent = p ? "⏸" : "▶";
+      if (p) restart();
+      else { clearInterval(timer); cancelAnimationFrame(tick); }
+    }
+
+    $("#storyNext").addEventListener("click", () => go(pos + 1));
+    $("#storyPrev").addEventListener("click", () => go(pos - 1));
+    playBtn.addEventListener("click", () => setPlaying(!playing));
+    // In fullscreen, tapping the photo advances instead of opening the lightbox.
+    img.addEventListener("click", () => {
+      if (isFull()) go(pos + 1);
+      else openLightbox(Math.max(0, PHOTOS.indexOf(order[pos])));
+    });
+
+    // ----- Fullscreen control -----
+    function enterFull() {
+      (wrap.requestFullscreen || wrap.webkitRequestFullscreen).call(wrap);
+    }
+    function exitFull() {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    }
+    function toggleFull() { isFull() ? exitFull() : enterFull(); }
+    $("#storyFs").addEventListener("click", toggleFull);
+    const bigFs = $("#storyFsBig");
+    if (bigFs) bigFs.addEventListener("click", enterFull);
+
+    function onFsChange() {
+      const full = isFull();
+      $("#storyFs").textContent = full ? "✕" : "⛶";
+      if (!playing) setPlaying(true);   // auto-play the show when going fullscreen
+      else restart();                    // re-time at the new (faster/slower) speed
+    }
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+
+    // Arrow keys / space drive the slideshow while in fullscreen
+    document.addEventListener("keydown", (e) => {
+      if (!isFull()) return;
+      if (e.key === "ArrowRight") go(pos + 1);
+      else if (e.key === "ArrowLeft") go(pos - 1);
+      else if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+    });
+
+    // Pause auto-play when the section is off-screen to save data (never while fullscreen)
+    const io = new IntersectionObserver((es) => {
+      es.forEach((e) => {
+        if (isFull()) return;
+        if (!e.isIntersecting && playing) clearInterval(timer);
+        else if (e.isIntersecting && playing) restart();
+      });
+    }, { threshold: 0.25 });
+    io.observe($(".player"));
+
+    render();
+    if (reduceMotion) { setPlaying(false); } else { restart(); }
+  }
+
+  /* ---------- GALLERY grid + reveal ---------- */
+  function buildGallery() {
+    const grid = $("#grid");
+    const frag = document.createDocumentFragment();
+    PHOTOS.forEach((idx, i) => {
+      const fig = document.createElement("figure");
+      const im = document.createElement("img");
+      im.loading = "lazy";
+      im.decoding = "async";
+      im.src = THUMB(idx);
+      im.alt = "A happy class memory";
+      fig.appendChild(im);
+      fig.addEventListener("click", () => openLightbox(i));
+      frag.appendChild(fig);
+    });
+    grid.appendChild(frag);
+
+    const figs = grid.querySelectorAll("figure");
+    if (reduceMotion) { figs.forEach((f) => f.classList.add("in")); return; }
+    const io = new IntersectionObserver((es, obs) => {
+      es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); obs.unobserve(e.target); } });
+    }, { rootMargin: "120px" });
+    figs.forEach((f) => io.observe(f));
+  }
+
+  /* ---------- LIGHTBOX (with its own slideshow) ---------- */
+  const lb = $("#lightbox");
+  const lbImg = $("#lbImg");
+  const lbPlay = $("#lbPlay");
+  let lbPos = 0;
+  let lbTimer = null;
+
+  const lbCaption = $("#lbCaption");
+  function showLb() {
+    const idx = PHOTOS[lbPos];
+    lbImg.src = WEB(idx);
+    // Only show real AI/OCR captions in the lightbox (skip random filler).
+    const c = CAPTIONS[idx] || CAPTIONS[String(idx)] || "";
+    lbCaption.textContent = c;
+    lbCaption.style.display = c ? "block" : "none";
+    const pre = new Image(); pre.src = WEB(PHOTOS[(lbPos + 1) % PHOTOS.length]);
+  }
+  function openLightbox(pos) {
+    lbPos = pos;
+    lb.classList.add("open");
+    lb.setAttribute("aria-hidden", "false");
+    showLb();
+  }
+  function closeLightbox() {
+    lb.classList.remove("open");
+    lb.setAttribute("aria-hidden", "true");
+    stopLbPlay();
+  }
+  function lbGo(n) { lbPos = (n + PHOTOS.length) % PHOTOS.length; showLb(); }
+  function startLbPlay() {
+    lbPlay.textContent = "⏸ Pause";
+    lbTimer = setInterval(() => lbGo(lbPos + 1), 3000);
+  }
+  function stopLbPlay() {
+    lbPlay.textContent = "▶ Slideshow";
+    clearInterval(lbTimer); lbTimer = null;
+  }
+
+  $("#lbClose").addEventListener("click", closeLightbox);
+  $("#lbNext").addEventListener("click", () => lbGo(lbPos + 1));
+  $("#lbPrev").addEventListener("click", () => lbGo(lbPos - 1));
+  lbPlay.addEventListener("click", () => (lbTimer ? stopLbPlay() : startLbPlay()));
+  lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
+  document.addEventListener("keydown", (e) => {
+    if (!lb.classList.contains("open")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowRight") lbGo(lbPos + 1);
+    if (e.key === "ArrowLeft") lbGo(lbPos - 1);
+  });
+
+  /* ---------- COUNT-UP ---------- */
+  function animateCount() {
+    const el = document.querySelector(".band__num[data-count]");
+    if (!el) return;
+    const target = +el.dataset.count;
+    if (reduceMotion) { el.textContent = target; return; }
+    const io = new IntersectionObserver((es, obs) => {
+      es.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.disconnect();
+        let n = 0; const step = Math.ceil(target / 60);
+        const t = setInterval(() => {
+          n += step;
+          if (n >= target) { n = target; clearInterval(t); }
+          el.textContent = n;
+        }, 24);
+      });
+    });
+    io.observe(el);
+  }
+
+  /* ---------- SURPRISE button → confetti + random photo ---------- */
+  $("#surpriseBtn").addEventListener("click", () => {
+    confettiBurst();
+    const p = Math.floor(Math.random() * PHOTOS.length);
+    openLightbox(p);
+  });
+
+  /* ---------- CONFETTI ---------- */
+  const canvas = $("#confetti");
+  const ctx = canvas.getContext("2d");
+  function confettiBurst() {
+    if (reduceMotion) return;
+    canvas.classList.add("go");
+    canvas.width = innerWidth; canvas.height = innerHeight;
+    const colors = ["#2b6ef6", "#ff5a8a", "#ffc83d", "#36d399", "#a78bfa"];
+    const parts = Array.from({ length: 140 }, () => ({
+      x: innerWidth / 2, y: innerHeight / 3,
+      vx: (Math.random() - 0.5) * 16, vy: Math.random() * -16 - 4,
+      g: 0.4 + Math.random() * 0.3, s: 6 + Math.random() * 8,
+      c: colors[Math.floor(Math.random() * colors.length)], r: Math.random() * 6,
+      vr: (Math.random() - 0.5) * 0.4,
+    }));
+    let frames = 0;
+    (function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      parts.forEach((p) => {
+        p.vy += p.g; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+        ctx.restore();
+      });
+      frames++;
+      if (frames < 150) requestAnimationFrame(draw);
+      else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.classList.remove("go"); }
+    })();
+  }
+})();

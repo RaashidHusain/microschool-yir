@@ -1,0 +1,5 @@
+# Keep the huge original photos out of the deploy — we ship the optimized
+# versions in images/ and thumbs/ instead.
+JPEG image-*.JPEG
+*.JPEG
+.claude

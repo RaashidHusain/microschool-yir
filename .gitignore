@@ -1,0 +1,6 @@
+# Large PowerPoint export — exceeds GitHub's 100MB file limit, not needed for the site
+YearInReview.pptx
+~$*.pptx
+
+# Editor / OS cruft
+.DS_Store
