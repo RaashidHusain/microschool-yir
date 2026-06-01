@@ -5,14 +5,6 @@
   const WEB = (i) => `images/photo-${i}.jpg`;
   const THUMB = (i) => `thumbs/photo-${i}.jpg`;
 
-  // Fun captions that rotate under the big slideshow + in the hero tagline.
-  const FUN_CAPTIONS = [
-    "Look at us go! 🚀", "Best class ever! 🌟", "Snack time is the best time 🥪",
-    "Puzzle masters at work 🧩", "Smiles all around 😄", "Learning is an adventure 📚",
-    "Friends + fun = happy days 🤝", "Say cheese! 🧀", "Big dreams, little hands ✨",
-    "Another awesome memory 💫", "Teamwork makes the dream work 🙌", "So much to discover 🔭",
-    "Giggles guaranteed 😂", "Kindness everywhere 💛", "Making today amazing 🎈",
-  ];
   const HERO_TAGS = [
     "Where every day is an adventure ✨",
     "294 happy memories and counting 📸",
@@ -22,7 +14,6 @@
 
   const $ = (s) => document.querySelector(s);
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const rand = (a) => a[Math.floor(Math.random() * a.length)];
 
   let PHOTOS = [];          // available indices
   let order = [];           // shuffled play order
@@ -66,8 +57,8 @@
     start();
   });
 
-  // Caption for a photo: the AI/OCR caption if we have one, else a fun fallback.
-  const captionFor = (idx) => CAPTIONS[idx] || CAPTIONS[String(idx)] || rand(FUN_CAPTIONS);
+  // Caption for a photo: the AI/OCR caption if we have one, else nothing.
+  const captionFor = (idx) => CAPTIONS[idx] || CAPTIONS[String(idx)] || "";
 
   function start() {
     buildHero();
@@ -149,7 +140,9 @@
         img.src = next.src;
         img.classList.remove("fade");
       };
-      cap.textContent = captionFor(idx);
+      const capText = captionFor(idx);
+      cap.textContent = capText;
+      cap.style.display = capText ? "block" : "none";
       count.textContent = `${pos + 1} / ${order.length}`;
       // preload upcoming
       const pre = new Image(); pre.src = WEB(order[(pos + 1) % order.length]);
