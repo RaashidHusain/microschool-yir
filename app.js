@@ -7,7 +7,7 @@
 
   const HERO_TAGS = [
     "Where every day is an adventure ✨",
-    "294 happy memories and counting 📸",
+    "681 happy memories and counting 📸",
     "Smiles, snacks, puzzles & friends 🧩",
     "Our class. Our story. Our fun. 🌟",
   ];
@@ -52,7 +52,7 @@
     fetch("captions.json").then((r) => r.json()).catch(() => ({})),
   ]).then(([m, caps]) => {
     CAPTIONS = caps || {};
-    PHOTOS = (m && m.photos) || Array.from({ length: 294 }, (_, i) => i);
+    PHOTOS = (m && m.photos) || Array.from({ length: 681 }, (_, i) => i);
     order = shuffle(PHOTOS);
     start();
   });
@@ -123,11 +123,10 @@
     let playing = true;
     let timer = null;
     let tick = null;
-    // The whole slideshow must run for exactly 13 minutes (slot is 15 min,
-    // 2 min of slack left for pausing). Per-photo time = 13 min / photo count,
-    // so every image's duration sums to exactly 13 minutes regardless of how
-    // many photos there are.
-    const TOTAL_MS = 13 * 60 * 1000; // 780,000 ms
+    // The whole slideshow must run for exactly 15 minutes. Per-photo time =
+    // 15 min / photo count, so every image's duration sums to exactly 15
+    // minutes regardless of how many photos there are.
+    const TOTAL_MS = 15 * 60 * 1000; // 900,000 ms
     const isFull = () => document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
     const curDur = () => TOTAL_MS / order.length;
 

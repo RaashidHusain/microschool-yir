@@ -2,4 +2,6 @@
 # versions in images/ and thumbs/ instead.
 JPEG image-*.JPEG
 *.JPEG
+originals_2026
+optimize_new.sh
 .claude
