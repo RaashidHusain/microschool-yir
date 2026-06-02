@@ -13,19 +13,7 @@
   <link rel="icon" type="image/jpeg" href="IAM_Microschool-300x300.jpg" />
   <link rel="apple-touch-icon" href="IAM_Microschool-300x300.jpg" />
 </head>
-<body class="locked">
-
-  <!-- ===== PASSWORD GATE ===== -->
-  <div class="gate" id="gate">
-    <form class="gate__card" id="gateForm">
-      <img class="gate__logo" src="IAM_Microschool-300x300.jpg" alt="IAM Microschool logo" />
-      <h1 class="gate__title">IAM Microschool 2025-2026</h1>
-      <input class="gate__input" id="gateInput" type="password" placeholder="Password"
-             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
-      <button class="gate__btn" type="submit">Enter</button>
-      <p class="gate__error" id="gateError" role="alert"></p>
-    </form>
-  </div>
+<body>
 
   <!-- ===== NAV ===== -->
   <header class="nav" id="nav">
@@ -133,46 +121,7 @@
 
   <canvas class="confetti" id="confetti"></canvas>
 
-  <!-- ===== PASSWORD GATE LOGIC ===== -->
-  <script>
-    (function () {
-      var PASSWORD = "al-ajal-313";
-      var KEY = "iam-ms-unlocked";
-      var gate = document.getElementById("gate");
-      var form = document.getElementById("gateForm");
-      var input = document.getElementById("gateInput");
-      var error = document.getElementById("gateError");
-
-      function unlock() {
-        document.body.classList.remove("locked");
-        gate.classList.add("gate--hidden");
-        try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
-      }
-
-      // Stay unlocked for the rest of the browser session.
-      try {
-        if (sessionStorage.getItem(KEY) === "1") unlock();
-      } catch (e) {}
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (input.value === PASSWORD) {
-          unlock();
-        } else {
-          error.textContent = "Incorrect password. Please try again.";
-          input.value = "";
-          input.focus();
-          form.classList.remove("gate__card--shake");
-          // reflow so the animation can replay
-          void form.offsetWidth;
-          form.classList.add("gate__card--shake");
-        }
-      });
-
-      input.focus();
-    })();
-  </script>
-
+  <!-- Password protection is handled server-side by middleware.js + api/login.js -->
   <script src="app.js"></script>
 </body>
 </html>
