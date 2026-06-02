@@ -48,7 +48,9 @@
 
   /* ---------- BOOTSTRAP: manifest + AI/OCR captions ---------- */
   Promise.all([
-    fetch("images/manifest.json").then((r) => r.json()).catch(() => null),
+    // Cache-bust: the manifest used to be cached "immutable" for a year, so a
+    // changing query param forces browsers/CDN to fetch the current photo list.
+    fetch("images/manifest.json?v=" + Date.now()).then((r) => r.json()).catch(() => null),
     fetch("captions.json").then((r) => r.json()).catch(() => ({})),
   ]).then(([m, caps]) => {
     CAPTIONS = caps || {};
