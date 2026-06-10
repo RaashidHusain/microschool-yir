@@ -7,7 +7,7 @@
 
   const HERO_TAGS = [
     "Where every day is an adventure ✨",
-    "681 happy memories and counting 📸",
+    "734 happy memories and counting 📸",
     "Smiles, snacks, puzzles & friends 🧩",
     "Our class. Our story. Our fun. 🌟",
   ];
@@ -54,7 +54,7 @@
     fetch("captions.json").then((r) => r.json()).catch(() => ({})),
   ]).then(([m, caps]) => {
     CAPTIONS = caps || {};
-    PHOTOS = (m && m.photos) || Array.from({ length: 681 }, (_, i) => i);
+    PHOTOS = (m && m.photos) || Array.from({ length: 734 }, (_, i) => i);
     order = shuffle(PHOTOS);
     start();
   });
@@ -125,12 +125,12 @@
     let playing = true;
     let timer = null;
     let tick = null;
-    // The whole slideshow must run for exactly 15 minutes. Per-photo time =
-    // 15 min / photo count, so every image's duration sums to exactly 15
-    // minutes regardless of how many photos there are.
+    // Base pace = 15 min / photo count, plus a flat +2s per photo for a more
+    // relaxed viewing speed (so each image lingers a couple seconds longer).
     const TOTAL_MS = 15 * 60 * 1000; // 900,000 ms
+    const EXTRA_PER_PHOTO_MS = 2000; // +2s on every slide
     const isFull = () => document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
-    const curDur = () => TOTAL_MS / order.length;
+    const curDur = () => TOTAL_MS / order.length + EXTRA_PER_PHOTO_MS;
 
     function render() {
       const idx = order[pos];
