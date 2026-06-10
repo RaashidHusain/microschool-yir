@@ -121,8 +121,39 @@
     const prog = $("#storyProgress");
     const playBtn = $("#storyPlay");
     const wrap = $("#playerWrap");
+    const music = $("#storyMusic");
+    const muteBtn = $("#storyMute");
     let pos = 0;
     let playing = true;
+
+    /* ---------- Background music (follows the slideshow's play/pause) ---------- */
+    if (music) music.volume = 0.35; // gentle, in-the-background level
+    function syncMusic() {
+      if (!music) return;
+      if (playing && !music.muted) {
+        // play() can reject if the browser is still blocking autoplay; ignore it.
+        const p = music.play();
+        if (p && p.catch) p.catch(() => {});
+      } else {
+        music.pause();
+      }
+    }
+    if (muteBtn && music) {
+      muteBtn.addEventListener("click", () => {
+        music.muted = !music.muted;
+        muteBtn.textContent = music.muted ? "🔇" : "🔊";
+        muteBtn.setAttribute("aria-label", music.muted ? "Unmute music" : "Mute music");
+        syncMusic();
+      });
+    }
+    // Browsers block audio until the visitor interacts; start it on the first gesture.
+    function primeMusic() {
+      syncMusic();
+      document.removeEventListener("pointerdown", primeMusic);
+      document.removeEventListener("keydown", primeMusic);
+    }
+    document.addEventListener("pointerdown", primeMusic);
+    document.addEventListener("keydown", primeMusic);
     let timer = null;
     let tick = null;
     // Base pace = 15 min / photo count, plus a flat +2s per photo for a more
@@ -177,6 +208,7 @@
       playBtn.textContent = p ? "⏸" : "▶";
       if (p) restart();
       else { clearInterval(timer); cancelAnimationFrame(tick); }
+      syncMusic();
     }
 
     $("#storyNext").addEventListener("click", () => go(pos + 1));

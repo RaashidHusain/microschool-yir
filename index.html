@@ -71,8 +71,13 @@
         <button class="player__play" id="storyPlay" aria-label="Play or pause">⏸</button>
         <div class="player__progress"><span id="storyProgress"></span></div>
         <span class="player__count" id="storyCount">1 / 734</span>
+        <button class="player__fs" id="storyMute" aria-label="Mute music" title="Music on / off">🔊</button>
         <button class="player__fs" id="storyFs" aria-label="Fullscreen slideshow" title="Fullscreen">⛶</button>
       </div>
+
+      <!-- Background music for the slideshow. Drop an MP3 named slideshow-music.mp3
+           in the project root. Plays/pauses with the slideshow; toggle with the 🔊 button. -->
+      <audio id="storyMusic" src="slideshow-music.mp3" loop preload="auto"></audio>
     </div>
   </section>
 
