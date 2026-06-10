@@ -7,7 +7,7 @@
 
   const HERO_TAGS = [
     "Where every day is an adventure ✨",
-    "734 happy memories and counting 📸",
+    "736 happy memories and counting 📸",
     "Smiles, snacks, puzzles & friends 🧩",
     "Our class. Our story. Our fun. 🌟",
   ];
@@ -54,7 +54,7 @@
     fetch("captions.json").then((r) => r.json()).catch(() => ({})),
   ]).then(([m, caps]) => {
     CAPTIONS = caps || {};
-    PHOTOS = (m && m.photos) || Array.from({ length: 734 }, (_, i) => i);
+    PHOTOS = (m && m.photos) || Array.from({ length: 736 }, (_, i) => i);
     order = shuffle(PHOTOS);
     start();
   });
